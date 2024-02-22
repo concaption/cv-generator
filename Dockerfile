@@ -4,6 +4,8 @@
 # Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
+RUN apt-get update && apt-get install -y libreoffice
+
 # Set the working directory to /app
 WORKDIR /app
 

@@ -3,6 +3,7 @@ This file contains the utility functions that are used in the main application.
 """
 import uuid
 import os
+import logging
 
 from docx import Document
 from docx.shared import Pt, Inches
@@ -20,9 +21,8 @@ from docx2pdf import convert
 from google.cloud import storage
 from google.oauth2 import service_account
 
+from app.utils import convert_docx_to_pdf
 
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -184,9 +184,12 @@ class ASI_CV:
             self.filename = filename
         # TODO: Output the file to a folder
         pdf_file = self.filename.replace(".docx", ".pdf")
-        from docx2pdf import convert
+        
         self.save_docx(self.filename, save=True)
-        convert(self.filename, pdf_file)
+        convert_docx_to_pdf(self.filename, pdf_file)
+        # When using system that has MS Word installed
+        # from docx2pdf import convert
+        # convert(self.filename, pdf_file)
         with open(pdf_file, "rb") as file:
             file_bytes = file.read()
         if not save:
