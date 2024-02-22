@@ -118,7 +118,7 @@ class ASI_CV:
         self.add_heading("Employment History")
         self.add_employment_table()
         self.add_heading("Selected Experience")
-        selected_experiences = [experience for experience in self.experiences if experience.get("IsSelected") == "True"]
+        selected_experiences = [experience for experience in self.experiences if experience.get("IsSelected") is True]
         for experience in selected_experiences:
             self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False)
             self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY)
@@ -184,12 +184,18 @@ class ASI_CV:
             self.filename = filename
         # TODO: Output the file to a folder
         pdf_file = self.filename.replace(".docx", ".pdf")
-        
+        # check if the os is windows
+        # TODO: Check if the system has MS Word installed
+        # if os.name == 'nt':
+        #     print("Windows")
+        #     # When using system that has MS Word installed
+        #     from docx2pdf import convert
+        #     convert(self.filename, pdf_file)
+        # if os.name == 'posix':
+            # print("Linux")
+            # When using system that does not have MS Word installed
         self.save_docx(self.filename, save=True)
         convert_docx_to_pdf(self.filename, pdf_file)
-        # When using system that has MS Word installed
-        # from docx2pdf import convert
-        # convert(self.filename, pdf_file)
         with open(pdf_file, "rb") as file:
             file_bytes = file.read()
         if not save:
