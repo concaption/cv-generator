@@ -45,7 +45,7 @@ configure_logging()
 
 
 
-app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0", description="Generate CVs using ASI CV Generator")
+app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0", description="Generate CVs using ASI CV Generator.")
 
 app.include_router(main.router)
 origins = [
