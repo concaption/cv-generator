@@ -186,16 +186,16 @@ class ASI_CV:
         pdf_file = self.filename.replace(".docx", ".pdf")
         # check if the os is windows
         # TODO: Check if the system has MS Word installed
-        # if os.name == 'nt':
-        #     print("Windows")
-        #     # When using system that has MS Word installed
-        #     from docx2pdf import convert
-        #     convert(self.filename, pdf_file)
-        # if os.name == 'posix':
-            # print("Linux")
+        if os.name == 'nt':
+            print("Windows")
+            # When using system that has MS Word installed
+            from docx2pdf import convert
+            convert(self.filename, pdf_file)
+        else:
+            print("Linux")
             # When using system that does not have MS Word installed
-        self.save_docx(self.filename, save=True)
-        convert_docx_to_pdf(self.filename, pdf_file)
+            self.save_docx(self.filename, save=True)
+            convert_docx_to_pdf(self.filename, pdf_file)
         with open(pdf_file, "rb") as file:
             file_bytes = file.read()
         if not save:
