@@ -152,7 +152,7 @@ class ASI_CV:
         noraml.font.size = Pt(10)
         noraml.paragraph_format.space_before = Pt(0)
         noraml.paragraph_format.space_after = Pt(0)
-        noraml.paragraph_format.line_spacing = 1.07
+        noraml.paragraph_format.line_spacing = 1.08
     
     def set_margins(self, margins=[0.5, 0.5, 0.5, 0.5]):
         sections = self.doc.sections
@@ -206,7 +206,25 @@ class ASI_CV:
     def add_table(self):
         table = self.doc.add_table(rows=0, cols=4)
         table.style = 'Table Grid'
-        # set the width of the first column
+        # Define the border color and cell background color
+        border_color = "000000"  # Black color
+        cell_background_color = "FFFFFF"  # White color
+
+        # Loop through each cell and modify its properties
+        for row in table.rows:
+            for cell in row.cells:
+                # Set cell borders
+                tcPr = cell._element.get_or_add_tcPr()
+                tcBorders = tcPr.get_or_add_tcBorders()
+                for border in ['top', 'start', 'bottom', 'end']:
+                    element = getattr(tcBorders, f'get_or_add_{border}')()
+                    element.set('w:val', 'single')  # set border style
+                    element.set('w:sz', '4')  # set border size
+                    element.set('w:color', border_color)  # set border color
+                
+                # Set cell background color
+                shading_elm = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), cell_background_color))
+                tcPr.append(shading_elm)
         table.columns[0].width = Inches(1.5)
         table.columns[1].width = Inches(2)
         table.columns[2].width = Inches(1.5)

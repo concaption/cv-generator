@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     """"
     Settings class to load environment variables from .env file
     """
-    BUCKET_NAME: str = os.getenv('BUCKET_NAME', "bucket_name")
-    BUCKET_FOLDER: str = os.getenv('BUCKET_FOLDER', "bucket_folder")
+    BUCKET_NAME: str = os.getenv('BUCKET_NAME', "recombo-vision")
+    BUCKET_FOLDER: str = os.getenv('BUCKET_FOLDER', "asi-cvs")
     CREDENTIALS: str = os.getenv('CREDENTIALS', "credentials.json")
     TEMPLATES_DIR: str = os.getenv('TEMPLATES_DIR', "templates")
     OUTPUT_DIR: str = os.getenv('OUTPUT_DIR', "output")
