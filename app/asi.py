@@ -1,6 +1,8 @@
 """
 This file contains the utility functions that are used in the main application.
 """
+import uuid
+import os
 
 from docx import Document
 from docx.shared import Pt, Inches
@@ -14,12 +16,16 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml.ns import nsdecls
 from docx.oxml import OxmlElement
 from docx2pdf import convert
-import uuid
-import os
+
+from google.cloud import storage
+from google.oauth2 import service_account
+
+
 
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 
 class ASI_CV:
@@ -96,7 +102,14 @@ class ASI_CV:
             # TODO: Add the experience to the document
             pass
 
-    def generate_cv(self, filename=None, file_format="pdf", output_type="file", save=False):
+    def generate_cv(self, filename=None, file_format="pdf", output_type="url", save=False, bucket_name=None, folder=None, credentials=None):
+        """
+        This function is used to generate the CV for the ASI employee.
+        """
+        if file_format not in ["docx", "pdf"]:
+            raise ValueError("The file format should be either 'docx' or 'pdf'")
+        if output_type not in ["url", "file"]:
+            raise ValueError("The output type should be either 'url' or 'file'")
         self.setup_document()
         self.add_table()
         self.add_heading("Summary of Experience")
@@ -109,10 +122,27 @@ class ASI_CV:
         for experience in selected_experiences:
             self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False)
             self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY)
-        if file_format == "docx":
-            return self.save_docx(filename=filename, save=False)
-        if file_format == "pdf":
-            return self.save_pdf(filename=filename, save=False)
+        if output_type == "url":
+            if bucket_name is None or folder is None or credentials is None:
+                raise ValueError("The bucket name, folder and credentials should be provided when the output type is 'url'")        
+            credentials = service_account.Credentials.from_service_account_file(credentials)
+            google_storage_client = storage.Client(credentials=credentials)
+            bucket = google_storage_client.get_bucket(bucket_name)
+            if file_format == "docx":
+                file_bytes = self.save_docx(filename=filename, save=False)
+            if file_format == "pdf":
+                file_bytes = self.save_pdf(filename=filename, save=False)
+            blob = bucket.blob(folder + "/" + self.file_id + "." + file_format)
+            blob.upload_from_string(file_bytes, content_type="application/" + file_format)
+            blob.make_public()
+            return blob.public_url
+        if output_type == "file":
+            if folder is None:
+                folder = "outputs"
+            if file_format == "docx":
+                return self.save_docx(filename=filename, save=save, folder=folder)
+            if file_format == "pdf":
+                return self.save_pdf(filename=filename, save=save, folder=folder)
 
     def setup_document(self):
         self.set_margins()
@@ -132,11 +162,12 @@ class ASI_CV:
             section.left_margin = Inches(margins[2])
             section.right_margin = Inches(margins[3])
 
-    def save_docx(self, filename=None, save=False):
+    def save_docx(self, filename=None, save=False, folder='outputs'):
         if filename is None:
             self.filename = self.file_id + ".docx"
         else:
             self.filename = filename
+        # TODO: Output the file to a folder
         self.doc.save(self.filename)
         # covert the docx file into bytes
         with open(self.filename, "rb") as file:
@@ -146,11 +177,12 @@ class ASI_CV:
         self.docx_file = file_bytes
         return file_bytes
 
-    def save_pdf(self, filename=None, save=False):
+    def save_pdf(self, filename=None, save=False, folder='outputs'):
         if filename is None:
             self.filename = self.file_id + ".docx"
         else:
             self.filename = filename
+        # TODO: Output the file to a folder
         pdf_file = self.filename.replace(".docx", ".pdf")
         from docx2pdf import convert
         self.save_docx(self.filename, save=True)
