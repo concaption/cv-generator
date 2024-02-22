@@ -37,15 +37,18 @@ async def create_cv(profile: Profile, file_format: str = "pdf", output_type: str
         asi_cv._add_summary_of_experience(summary)
     for experience in profile.Experiences:
         asi_cv._add_experience(str(experience.DateRange), experience.Position, experience.Organisation, experience.Location, experience.Summary, experience.IsSelected)
-    output = asi_cv.generate_cv(file_format=file_format, output_type=output_type, bucket_name=settings.BUCKET_NAME, folder=settings.BUCKET_FOLDER, credentials=settings.CREDENTIALS)
-    if output_type == "url":
-        return {"url": output}
-    if output_type == "file":
-        if file_format == "docx":
-            print("docx")
-            return Response(content=output, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-        if file_format == "pdf":
-            return Response(content=output, media_type="application/pdf")
+    try:
+        output = asi_cv.generate_cv(file_format=file_format, output_type=output_type, bucket_name=settings.BUCKET_NAME, folder=settings.BUCKET_FOLDER, credentials=settings.CREDENTIALS)
+        if output_type == "url":
+            return {"url": output}
+        if output_type == "file":
+            if file_format == "docx":
+                print("docx")
+                return Response(content=output, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            if file_format == "pdf":
+                return Response(content=output, media_type="application/pdf")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
         
 @router.get("/" , response_class=HTMLResponse)
 async def home(request: Request):
