@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 from starlette.responses import Response
 from app.asi import ASI_CV
-from app.schema import Profile
+from app.schema import Profile, RawProfile
 from app.config import settings
 
 import os
@@ -49,7 +49,49 @@ async def create_cv(profile: Profile, file_format: str = "pdf", output_type: str
                 return Response(content=output, media_type="application/pdf")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-        
+
 @router.get("/" , response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+
+@router.post("raw_data")
+async def raw_data(profile: RawProfile, file_format: str = "pdf", output_type: str = "url"):
+    asi_cv = ASI_CV()
+    asi_cv._add_name_title(profile.Name, profile.Title)
+    qualifications = profile.Qualifications.replace("•", "").split("|")
+    for qualification in qualifications:
+        degree, field, institution, year = qualification.split(",")
+        asi_cv._add_qualification(degree, field, institution, year)
+    for skill in profile.TechnicalSkills:
+        asi_cv._add_technical_skill(skill)
+    # language are in this format English (excellent), French (basic)
+    # split by comma and then by space
+    languages = profile.Languages.split(",")
+    for language in languages:
+        language, proficiency = language.split(" (")
+        proficiency = proficiency.replace(")", "")
+        asi_cv._add_language(language, proficiency)
+    for country in profile.Countries:
+        asi_cv._add_country(country)
+    summary_of_experiences = profile.SummaryOfExperience.split("||")
+    for summary in summary_of_experiences:
+        asi_cv._add_summary_of_experience(summary)
+    experiences = profile.ExperienceHeader.split("|")
+    experiences_content = profile.ExperienceContent.split("#")
+    for i, experience in enumerate(experiences):
+        position, organisation, location, date_range = experience.split(",")
+        asi_cv._add_experience(date_range, position, organisation, location, experiences_content[i])
+    try:
+        output = asi_cv.generate_cv(file_format=file_format, output_type=output_type, bucket_name=settings.BUCKET_NAME, folder=settings.BUCKET_FOLDER, credentials=settings.CREDENTIALS)
+        if output_type == "url":
+            return {"url": output}
+        if output_type == "file":
+            if file_format == "docx":
+                print("docx")
+                return Response(content=output, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            if file_format == "pdf":
+                return Response(content=output, media_type="application/pdf")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -114,7 +114,7 @@ class ASI_CV:
         self.add_table()
         self.add_heading("Summary of Experience")
         for summary in self.summary_of_experience:
-            self.add_paragraph(summary)
+            self.add_paragraph(summary, alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY)
         self.add_heading("Employment History")
         self.add_employment_table()
         self.add_heading("Selected Experience")

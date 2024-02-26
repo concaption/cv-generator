@@ -28,3 +28,14 @@ class Profile(BaseModel):
     Countries: List[str]
     SummaryOfExperience: List[str]
     Experiences: List[Experience]
+
+class RawProfile(BaseModel):
+    Name: str
+    Title: str
+    Qualifications: str
+    TechnicalSkills: List[str] = Field(..., example=["Skill1", "Skill2"])
+    Languages: str
+    Countries: List[str]
+    SummaryOfExperience: str
+    ExperienceHeader: str
+    ExperienceContent: str
