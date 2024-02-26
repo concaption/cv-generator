@@ -8,3 +8,5 @@ services:
       - "8000:${PORT}"
     env_file:
       - .env
+    volumes:
+      - .:/app

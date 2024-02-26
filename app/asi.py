@@ -51,6 +51,11 @@ class ASI_CV:
             # TODO: Add the name to the document
             pass
 
+    def _add_raw_qualification(self, qualification, create = False):
+        self.qualifications.append(qualification)
+        if create:
+            pass
+
     def _add_qualification(self, degree, field, istitution, year, create = False):
         self.qualifications.append({
             "Degree": degree,
@@ -121,7 +126,7 @@ class ASI_CV:
         selected_experiences = [experience for experience in self.experiences if experience.get("IsSelected") is True]
         for experience in selected_experiences:
             self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False)
-            self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY)
+            self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY, space_before=0, space_after=4)
         if output_type == "url":
             if bucket_name is None or folder is None or credentials is None:
                 raise ValueError("The bucket name, folder and credentials should be provided when the output type is 'url'")        
@@ -132,7 +137,7 @@ class ASI_CV:
                 file_bytes = self.save_docx(filename=filename, save=False)
             if file_format == "pdf":
                 file_bytes = self.save_pdf(filename=filename, save=False)
-            blob = bucket.blob(folder + "/" + self.file_id + "." + file_format)
+            blob = bucket.blob(folder + "/" + self.name +" ASI CV Export" + "." + file_format)
             blob.upload_from_string(file_bytes, content_type="application/" + file_format)
             blob.make_public()
             return blob.public_url
@@ -233,17 +238,20 @@ class ASI_CV:
         table.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
         self.add_table_row_with_two_columns(table, ["Name", "Position"], [[self.name], [self.title]], 'D9E2F3', bold=False, bullet=False)
-        formated_qualifications = [ qualification.get("Degree") + " in " + qualification.get("Field") + " from " + qualification.get("Institution") + " in " + qualification.get("Year") for qualification in self.qualifications]
+        if self.qualifications[0].get("Degree"):
+            formated_qualifications = [ qualification.get("Degree") + " in " + qualification.get("Field") + " from " + qualification.get("Institution") + " in " + qualification.get("Year") for qualification in self.qualifications]
+        else:
+            formated_qualifications = self.qualifications
         formated_languages = [ language.get("Language") + " (" + language.get("Proficiency") + ")" for language in self.languages]
         self.add_table_row(table, "Qualification", formated_qualifications, 'D9E2F3', bold=False, bullet=True)
         self.add_table_row(table, "Countries", self.countries, 'D9E2F3', bold=False, bullet=False)
         self.add_table_row(table, "Technical Skills", self.technical_skills, 'D9E2F3', bold=False, bullet=False)
         self.add_table_row(table, "Language Skills", formated_languages, 'D9E2F3', bold=False, bullet=False)
 
-    def add_paragraph(self, text, alignment=WD_PARAGRAPH_ALIGNMENT.LEFT):
+    def add_paragraph(self, text, alignment=WD_PARAGRAPH_ALIGNMENT.LEFT, space_before=4, space_after=4):
         p = self.doc.add_paragraph(text)
-        p.paragraph_format.space_before = Pt(4)
-        p.paragraph_format.space_after = Pt(4)
+        p.paragraph_format.space_before = Pt(space_before)
+        p.paragraph_format.space_after = Pt(space_after)
         p.alignment = alignment
         return p
 
