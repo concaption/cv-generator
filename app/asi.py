@@ -238,10 +238,12 @@ class ASI_CV:
         table.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
         self.add_table_row_with_two_columns(table, ["Name", "Position"], [[self.name], [self.title]], 'D9E2F3', bold=False, bullet=False)
+        '''
         if self.qualifications[0].get("Degree"):
             formated_qualifications = [ qualification.get("Degree") + " in " + qualification.get("Field") + " from " + qualification.get("Institution") + " in " + qualification.get("Year") for qualification in self.qualifications]
         else:
-            formated_qualifications = self.qualifications
+        '''
+        formated_qualifications = self.qualifications
         formated_languages = [ language.get("Language") + " (" + language.get("Proficiency") + ")" for language in self.languages]
         self.add_table_row(table, "Qualification", formated_qualifications, 'D9E2F3', bold=False, bullet=True)
         self.add_table_row(table, "Countries", self.countries, 'D9E2F3', bold=False, bullet=False)
