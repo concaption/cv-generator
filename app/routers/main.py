@@ -56,7 +56,7 @@ async def home(request: Request):
 
 
 
-@router.post("raw_data")
+@router.post("/raw_data")
 async def raw_data(profile: RawProfile, file_format: str = "pdf", output_type: str = "url"):
     asi_cv = ASI_CV()
     asi_cv._add_name_title(profile.Name, profile.Title)
