@@ -125,7 +125,7 @@ class ASI_CV:
         self.add_heading("Selected Experience")
         selected_experiences = [experience for experience in self.experiences if experience.get("IsSelected") is True]
         for experience in selected_experiences:
-            self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False)
+            self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False, space_before=4, space_after=0)
             self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY, space_before=0, space_after=4)
         if output_type == "url":
             if bucket_name is None or folder is None or credentials is None:
@@ -137,7 +137,7 @@ class ASI_CV:
                 file_bytes = self.save_docx(filename=filename, save=False)
             if file_format == "pdf":
                 file_bytes = self.save_pdf(filename=filename, save=False)
-            blob = bucket.blob(folder + "/" + self.name +" ASI CV Export" + "." + file_format)
+            blob = bucket.blob(folder + "/" + self.name +" ASI CV Export" +self.file_id+ "." + file_format)
             blob.upload_from_string(file_bytes, content_type="application/" + file_format)
             blob.make_public()
             return blob.public_url
@@ -255,11 +255,11 @@ class ASI_CV:
         p.alignment = alignment
         return p
 
-    def add_heading(self, text, line=True):
+    def add_heading(self, text, line=True, space_before=6, space_after=4):
         heading = self.doc.add_heading(text, level=1)
         heading.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
-        heading.paragraph_format.space_before = Pt(6)
-        heading.paragraph_format.space_after = Pt(4)
+        heading.paragraph_format.space_before = Pt(space_before)
+        heading.paragraph_format.space_after = Pt(space_after)
         heading.paragraph_format.line_spacing = 1.1
         heading.paragraph_format.left_indent = Inches(0)
         run = heading.runs[0]
