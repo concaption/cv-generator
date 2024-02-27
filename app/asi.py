@@ -107,14 +107,13 @@ class ASI_CV:
             # TODO: Add the experience to the document
             pass
 
-    def _add_raw_experience(self, date_range, experience_header, experience_content, create = False):
+    def _add_raw_experience(self, date_range, experience_header, experience_content):
         self.experiences.append({
             "Date Range": date_range,
             "Header": experience_header,
             "Content": experience_content,
             "IsSelected": True
         })
-        if create:
 
     def generate_cv(self, filename=None, file_format="pdf", output_type="url", save=False, bucket_name=None, folder=None, credentials=None):
         """
