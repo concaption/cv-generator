@@ -62,7 +62,7 @@ async def for_raw_data(profile: RawProfile, file_format: str = "pdf", output_typ
     asi_cv._add_name_title(profile.Name, profile.Title)
     qualifications = profile.Qualifications.replace("•", "").split("|")
     for qualification in qualifications:
-        degree, field, institution, year = qualification.split(",")
+        # degree, field, institution, year = qualification.split(",")
         # asi_cv._add_qualification(degree, field, institution, year)
         asi_cv._add_raw_qualification(qualification)
     for skill in profile.TechnicalSkills:
