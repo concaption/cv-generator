@@ -107,6 +107,15 @@ class ASI_CV:
             # TODO: Add the experience to the document
             pass
 
+    def _add_raw_experience(self, date_range, experience_header, experience_content, create = False):
+        self.experiences.append({
+            "Date Range": date_range,
+            "Header": experience_header,
+            "Content": experience_content,
+            "IsSelected": True
+        })
+        if create:
+
     def generate_cv(self, filename=None, file_format="pdf", output_type="url", save=False, bucket_name=None, folder=None, credentials=None):
         """
         This function is used to generate the CV for the ASI employee.
@@ -125,8 +134,8 @@ class ASI_CV:
         self.add_heading("Selected Experience")
         selected_experiences = [experience for experience in self.experiences if experience.get("IsSelected") is True]
         for experience in selected_experiences:
-            self.add_heading(experience["Position"] + ", " + experience["Organisation"] + ", " + experience["Location"] + " (" + experience["Date Range"] + ")", line=False, space_before=4, space_after=0)
-            self.add_paragraph(experience["Summary"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY, space_before=0, space_after=4)
+            self.add_heading(experience["Header"] + " (" + experience["Date Range"] + ")", line=False, space_before=4, space_after=0)
+            self.add_paragraph(experience["Content"], alignment=WD_PARAGRAPH_ALIGNMENT.JUSTIFY, space_before=0, space_after=4)
         if output_type == "url":
             if bucket_name is None or folder is None or credentials is None:
                 raise ValueError("The bucket name, folder and credentials should be provided when the output type is 'url'")        
@@ -286,7 +295,8 @@ class ASI_CV:
             for experience in experiences:
                 row_cells = employment_table.add_row().cells
                 self.add_shaded_cell(row_cells[0], experience["Date Range"], "FFFFFF", bold=False)
-                self.add_shaded_cell(row_cells[1], f"{experience.get('Position')}, {experience.get('Organisation')}, {experience.get('Location')}", "FFFFFF", bold=False)
+                self.add_shaded_cell(row_cells[1], f"{experience.get('Header')}", "FFFFFF", bold=False)
+                # self.add_shaded_cell(row_cells[1], f"{experience.get('Position')}, {experience.get('Organisation')}, {experience.get('Location')}", "FFFFFF", bold=False)
         return employment_table
 
     def add_bullet_point(self, cell, text):
