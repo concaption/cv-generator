@@ -79,11 +79,19 @@ async def for_raw_data(profile: RawProfile, file_format: str = "pdf", output_typ
     summary_of_experiences = profile.SummaryOfExperience.split("||")
     for summary in summary_of_experiences:
         asi_cv._add_summary_of_experience(summary)
-    experiences = profile.ExperienceHeader.split("|")
+    experiences_years = profile.ExperienceYears.split(",")
+    experiences_headers = profile.ExperienceHeader.split("|")
     experiences_content = profile.ExperienceContent.split("#")
-    for i, experience in enumerate(experiences):
-        position, organisation, location, date_range = experience.split(",")
-        asi_cv._add_experience(date_range, position, organisation, location, experiences_content[i], True)
+    # make length of experiences_years and experiences_headers the same
+    if len(experiences_years) > len(experiences_headers):
+        experiences_headers = experiences_headers + [""] * (len(experiences_years) - len(experiences_headers))
+    if len(experiences_headers) > len(experiences_years):
+        experiences_years = experiences_years + [""] * (len(experiences_headers) - len(experiences_years))
+    for i, experience_header in enumerate(experiences_headers):
+        if len(experiences_years) > i:
+            date_range = experiences_years[i]
+            asi_cv._add_raw_experience(date_range, experience_header, experiences_content[i])
+            # asi_cv._add_experience(date_range, position, organisation, location, experiences_content[i], True)
     try:
         output = asi_cv.generate_cv(file_format=file_format, output_type=output_type, bucket_name=settings.BUCKET_NAME, folder=settings.BUCKET_FOLDER, credentials=settings.CREDENTIALS)
         if output_type == "url":

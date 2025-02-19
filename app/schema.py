@@ -37,5 +37,6 @@ class RawProfile(BaseModel):
     Languages: str
     Countries: List[str]
     SummaryOfExperience: str
+    ExperienceYears: str
     ExperienceHeader: str
     ExperienceContent: str
