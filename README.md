@@ -19,8 +19,8 @@ A FastAPI-based web application for generating and managing CVs.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/concaption/asi-cv-generator.git
-cd asi-cv-generator
+git clone https://github.com/concaption/cv-generator.git
+cd cv-generator
 ```
 
 2. Copy the example environment file:
